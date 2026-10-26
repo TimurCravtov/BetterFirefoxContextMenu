@@ -1,0 +1,244 @@
+/*
+ * Better page context menu (right-click menu) for Firefox.
+ *   - roomier rows, larger rounded hover highlight, wider menu
+ *   - icons next to most items, reusing Firefox's own built-in icons so they
+ *     follow your theme / dark mode automatically
+ *
+ * Targets Firefox 158. Needs toolkit.legacyUserProfileCustomizations.stylesheets
+ * (see user.js / install.ps1).
+ */
+
+/* ---------------------------------------------------------------------------
+ * Spacing
+ * ------------------------------------------------------------------------ */
+
+#contentAreaContextMenu {
+  --menuitem-padding-block: 9px !important;
+  --menuitem-padding-inline: 12px !important;
+  --menuitem-border-radius: 8px !important;
+  --menuitem-margin: 1px 0 !important;
+  --menuitem-max-width: 60em !important;
+  --icon-size: 16px !important;
+  --panel-padding: 8px !important;
+  min-width: 280px !important;
+}
+
+/* The mica popup backdrop on Windows 11 draws its own square frame; only round
+ * the menu itself when that is not in use. */
+@media not (-moz-windows-mica-popups) {
+  #contentAreaContextMenu {
+    --panel-border-radius: 14px !important;
+  }
+}
+
+#contentAreaContextMenu > menuseparator {
+  padding-block: 5px !important;
+  padding-inline: 12px !important;
+}
+
+/* More air between the icon and the label. */
+#contentAreaContextMenu > :is(menu, menuitem) > .menu-icon {
+  margin-inline-end: 12px !important;
+}
+
+/* Back / Forward / Reload / Bookmark row at the top. */
+#context-navigation {
+  gap: 4px !important;
+  padding-bottom: 2px !important;
+}
+
+#context-navigation > .menuitem-iconic {
+  border-radius: 8px !important;
+  > .menu-icon {
+    padding: 10px !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Icons
+ *
+ * Firefox hides .menu-icon unless an item is "iconic", and fills it from
+ * --menuitem-icon. Reserve the icon column on every plain item so labels stay
+ * aligned, then switch it on for the items that get an icon below.
+ * ------------------------------------------------------------------------ */
+
+#contentAreaContextMenu > :is(menu, menuitem):not(.menuitem-iconic, [image], [checked]) > .menu-icon {
+  display: revert !important;
+  visibility: hidden !important;
+}
+
+#contentAreaContextMenu {
+  --i-copy: url("chrome://global/skin/icons/edit-copy.svg") !important;
+  --i-cut: url("chrome://browser/skin/edit-cut.svg") !important;
+  --i-paste: url("chrome://browser/skin/edit-paste.svg") !important;
+  --i-undo: url("chrome://global/skin/icons/undo.svg") !important;
+  --i-delete: url("chrome://global/skin/icons/delete.svg") !important;
+  --i-select-all: url("chrome://global/skin/icons/double-checkmark.svg") !important;
+  --i-save: url("chrome://browser/skin/save.svg") !important;
+  --i-bookmark: url("chrome://browser/skin/bookmark-hollow.svg") !important;
+  --i-new-tab: url("chrome://browser/skin/new-tab.svg") !important;
+  --i-window: url("chrome://browser/skin/window.svg") !important;
+  --i-private: url("chrome://browser/skin/privateBrowsing.svg") !important;
+  --i-split: url("chrome://browser/skin/split-view-right-16.svg") !important;
+  --i-container: url("chrome://browser/skin/tabs.svg") !important;
+  --i-link: url("chrome://global/skin/icons/link.svg") !important;
+  --i-open-external: url("chrome://global/skin/icons/open-in-new.svg") !important;
+  --i-send: url("chrome://browser/skin/send-tab.svg") !important;
+  --i-print: url("chrome://global/skin/icons/print.svg") !important;
+  --i-screenshot: url("chrome://browser/skin/screenshot.svg") !important;
+  --i-source: url("chrome://global/skin/icons/edit-outline.svg") !important;
+  --i-inspect: url("chrome://global/skin/icons/developer.svg") !important;
+  --i-info: url("chrome://global/skin/icons/info.svg") !important;
+  --i-view: url("chrome://global/skin/icons/eye.svg") !important;
+  --i-reload: url("chrome://global/skin/icons/reload.svg") !important;
+  --i-search: url("chrome://global/skin/icons/search-glass.svg") !important;
+  --i-translate: url("chrome://browser/skin/translations.svg") !important;
+  --i-desktop: url("chrome://browser/skin/device-desktop.svg") !important;
+  --i-fullscreen: url("chrome://browser/skin/fullscreen.svg") !important;
+  --i-pip: url("chrome://global/skin/icons/open-in-new.svg") !important;
+  --i-highlight: url("chrome://global/skin/icons/highlights.svg") !important;
+}
+
+/* Selector list -> icon. Each group lists the items that share an icon; the
+ * first rule below turns the icon on, the rest only pick which one. */
+
+#context-copy, #context-copylink, #context-copyemail, #context-copyphone,
+#context-copyimage, #context-copyimage-contents, #context-copyvideourl,
+#context-copyaudiourl, #context-copy-link-to-highlight,
+#context-copy-clean-link-to-highlight, #context-stripOnShareLink,
+#context-pdfjs-copy, #context-pdfjs-copy-page {
+  --menuitem-icon: var(--i-copy) !important;
+}
+#context-cut, #context-pdfjs-cut, #context-pdfjs-cut-page {
+  --menuitem-icon: var(--i-cut) !important;
+}
+#context-paste, #context-paste-no-formatting, #context-pdfjs-paste {
+  --menuitem-icon: var(--i-paste) !important;
+}
+#context-undo, #context-redo, #context-pdfjs-undo, #context-pdfjs-redo {
+  --menuitem-icon: var(--i-undo) !important;
+}
+#context-delete, #context-pdfjs-delete, #context-pdfjs-delete-page,
+#context-remove-highlight {
+  --menuitem-icon: var(--i-delete) !important;
+}
+#context-selectall, #context-pdfjs-select-all {
+  --menuitem-icon: var(--i-select-all) !important;
+}
+#context-savepage, #context-savelink, #context-saveimage, #context-saveaudio,
+#context-savevideo, #context-saveframe, #context-video-saveimage,
+#context-pdfjs-save-page {
+  --menuitem-icon: var(--i-save) !important;
+}
+#context-bookmarklink, #context-bookmarkframe {
+  --menuitem-icon: var(--i-bookmark) !important;
+}
+#context-openlinkintab, #context-openframeintab {
+  --menuitem-icon: var(--i-new-tab) !important;
+}
+#context-openlink, #context-openframe, #context-openlinksmartwindow {
+  --menuitem-icon: var(--i-window) !important;
+}
+#context-openlinkprivate {
+  --menuitem-icon: var(--i-private) !important;
+}
+#context-openlinkinsplitview {
+  --menuitem-icon: var(--i-split) !important;
+}
+#context-openlinkinusercontext-menu, #context-openlinkincontainertab {
+  --menuitem-icon: var(--i-container) !important;
+}
+#context-openlinkincurrent, #context-previewlink {
+  --menuitem-icon: var(--i-link) !important;
+}
+#context-sendpagetodevice, #context-sendlinktodevice, #context-sendimage,
+#context-sendvideo, #context-sendaudio {
+  --menuitem-icon: var(--i-send) !important;
+}
+#context-print-selection, #context-printframe {
+  --menuitem-icon: var(--i-print) !important;
+}
+#context-take-screenshot {
+  --menuitem-icon: var(--i-screenshot) !important;
+}
+#context-viewsource, #context-viewframesource, #context-viewpartialsource-selection {
+  --menuitem-icon: var(--i-source) !important;
+}
+#context-inspect {
+  --menuitem-icon: var(--i-inspect) !important;
+}
+#context-viewimageinfo, #context-viewframeinfo, #context-viewimagedesc {
+  --menuitem-icon: var(--i-info) !important;
+}
+#context-viewimage, #context-viewvideo, #context-showonlythisframe {
+  --menuitem-icon: var(--i-view) !important;
+}
+#context-reloadimage, #context-reloadframe {
+  --menuitem-icon: var(--i-reload) !important;
+}
+#context-imagetext, #context-visual-search {
+  --menuitem-icon: var(--i-search) !important;
+}
+#context-translate-selection {
+  --menuitem-icon: var(--i-translate) !important;
+}
+#context-setDesktopBackground {
+  --menuitem-icon: var(--i-desktop) !important;
+}
+#context-video-fullscreen {
+  --menuitem-icon: var(--i-fullscreen) !important;
+}
+#context-video-pictureinpicture {
+  --menuitem-icon: var(--i-pip) !important;
+}
+#context-pdfjs-highlight-selection, #context-pdfjs-comment-selection {
+  --menuitem-icon: var(--i-highlight) !important;
+}
+
+/* Turn the icon on for every item mapped above. The leading id keeps this
+ * more specific than the "reserve the column" rule near the top. */
+#contentAreaContextMenu :is(
+  #context-copy, #context-copylink, #context-copyemail, #context-copyphone,
+  #context-copyimage, #context-copyimage-contents, #context-copyvideourl,
+  #context-copyaudiourl, #context-copy-link-to-highlight,
+  #context-copy-clean-link-to-highlight, #context-stripOnShareLink,
+  #context-pdfjs-copy, #context-pdfjs-copy-page,
+  #context-cut, #context-pdfjs-cut, #context-pdfjs-cut-page,
+  #context-paste, #context-paste-no-formatting, #context-pdfjs-paste,
+  #context-undo, #context-redo, #context-pdfjs-undo, #context-pdfjs-redo,
+  #context-delete, #context-pdfjs-delete, #context-pdfjs-delete-page,
+  #context-remove-highlight,
+  #context-selectall, #context-pdfjs-select-all,
+  #context-savepage, #context-savelink, #context-saveimage, #context-saveaudio,
+  #context-savevideo, #context-saveframe, #context-video-saveimage,
+  #context-pdfjs-save-page,
+  #context-bookmarklink, #context-bookmarkframe,
+  #context-openlinkintab, #context-openframeintab,
+  #context-openlink, #context-openframe, #context-openlinksmartwindow,
+  #context-openlinkprivate, #context-openlinkinsplitview,
+  #context-openlinkinusercontext-menu, #context-openlinkincontainertab,
+  #context-openlinkincurrent, #context-previewlink,
+  #context-sendpagetodevice, #context-sendlinktodevice, #context-sendimage,
+  #context-sendvideo, #context-sendaudio,
+  #context-print-selection, #context-printframe,
+  #context-take-screenshot,
+  #context-viewsource, #context-viewframesource, #context-viewpartialsource-selection,
+  #context-inspect,
+  #context-viewimageinfo, #context-viewframeinfo, #context-viewimagedesc,
+  #context-viewimage, #context-viewvideo, #context-showonlythisframe,
+  #context-reloadimage, #context-reloadframe,
+  #context-imagetext, #context-visual-search,
+  #context-translate-selection,
+  #context-setDesktopBackground,
+  #context-video-fullscreen, #context-video-pictureinpicture,
+  #context-pdfjs-highlight-selection, #context-pdfjs-comment-selection
+) > .menu-icon {
+  display: revert !important;
+  visibility: inherit !important;
+  content: var(--menuitem-icon) !important;
+}
+
+/* Redo reuses the undo arrow, mirrored. */
+#contentAreaContextMenu :is(#context-redo, #context-pdfjs-redo) > .menu-icon {
+  transform: scaleX(-1) !important;
+}

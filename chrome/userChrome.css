@@ -97,6 +97,7 @@
   --i-fullscreen: url("chrome://browser/skin/fullscreen.svg") !important;
   --i-pip: url("chrome://global/skin/icons/open-in-new.svg") !important;
   --i-highlight: url("chrome://global/skin/icons/highlights.svg") !important;
+  --i-ai: url("chrome://browser/skin/grid-sparkle.svg") !important;
 }
 
 /* Selector list -> icon. Each group lists the items that share an icon; the
@@ -176,8 +177,12 @@
 #context-reloadimage, #context-reloadframe {
   --menuitem-icon: var(--i-reload) !important;
 }
-#context-imagetext, #context-visual-search {
+#context-imagetext, #context-visual-search, #context-searchselect,
+#context-searchselect-private {
   --menuitem-icon: var(--i-search) !important;
+}
+#context-ask-chat, #context-create-aitab, #context-use-mini-window {
+  --menuitem-icon: var(--i-ai) !important;
 }
 #context-translate-selection {
   --menuitem-icon: var(--i-translate) !important;
@@ -227,7 +232,9 @@
   #context-viewimageinfo, #context-viewframeinfo, #context-viewimagedesc,
   #context-viewimage, #context-viewvideo, #context-showonlythisframe,
   #context-reloadimage, #context-reloadframe,
-  #context-imagetext, #context-visual-search,
+  #context-imagetext, #context-visual-search, #context-searchselect,
+  #context-searchselect-private,
+  #context-ask-chat, #context-create-aitab, #context-use-mini-window,
   #context-translate-selection,
   #context-setDesktopBackground,
   #context-video-fullscreen, #context-video-pictureinpicture,
@@ -241,4 +248,9 @@
 /* Redo reuses the undo arrow, mirrored. */
 #contentAreaContextMenu :is(#context-redo, #context-pdfjs-redo) > .menu-icon {
   transform: scaleX(-1) !important;
+}
+
+/* Hidden items. */
+#context-inspect-a11y {
+  display: none !important;
 }

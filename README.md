@@ -1,6 +1,6 @@
 # Better Firefox Context Menu
 
-A `userChrome.css` that gives Firefox's right-click menu icons, roomier rows, a rounded hover highlight and a wider layout. Built for Firefox 158 on Windows.
+A `userChrome.css` that gives Firefox's menus icons, roomier rows, a rounded hover highlight and a wider layout. It covers the page, tab, bookmark and toolbar right-click menus, the menu bar (File, Edit, History, ...) and the downloads and extension menus. Built for Firefox 159 on Windows.
 
 ![Demo](demo.png)
 

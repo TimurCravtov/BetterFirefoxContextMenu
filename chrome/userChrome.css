@@ -1,10 +1,11 @@
 /*
- * Better page context menu (and tab context menu) for Firefox.
- *   - roomier rows, larger rounded hover highlight, wider menu
+ * Better page context menu (and tab, bookmark, toolbar and menu-bar menus) for
+ * Firefox.
+ *   - roomier rows, larger rounded hover highlight, wider menus
  *   - icons next to most items, reusing Firefox's own built-in icons so they
  *     follow your theme / dark mode automatically
  *
- * Targets Firefox 158. Needs toolkit.legacyUserProfileCustomizations.stylesheets
+ * Targets Firefox 159. Needs toolkit.legacyUserProfileCustomizations.stylesheets
  * (install.ps1 sets it).
  *
  * Every declaration is !important: this is a user-level sheet and Firefox's own
@@ -12,14 +13,13 @@
  */
 
 /* ---------------------------------------------------------------------------
- * Spacing
+ * Spacing: every popup menu (but not dropdown lists inside <menulist>).
  *
- * Applies to the menus below and to their submenu popups (which reset the
- * --menuitem-* variables themselves, so they need to be targeted directly).
+ * Submenu popups reset the --menuitem-* variables themselves, so they are
+ * covered by the same selector rather than inheriting from their parent.
  * ------------------------------------------------------------------------ */
 
-:is(#contentAreaContextMenu, #tabContextMenu),
-:is(#contentAreaContextMenu, #tabContextMenu) menupopup {
+menupopup:not(menulist > menupopup) {
   --menuitem-padding-block: 9px !important;
   --menuitem-padding-inline: 12px !important;
   --menuitem-border-radius: 8px !important;
@@ -29,26 +29,27 @@
   --panel-padding: 8px !important;
 }
 
-:is(#contentAreaContextMenu, #tabContextMenu) {
+/* The big context menus get a minimum width. */
+:is(#contentAreaContextMenu, #tabContextMenu, #placesContext,
+    #toolbar-context-menu, #downloadsContextMenu) {
   min-width: 280px !important;
 }
 
 /* The mica popup backdrop on Windows 11 draws its own square frame; only round
  * the menu itself when that is not in use. */
 @media not (-moz-windows-mica-popups) {
-  :is(#contentAreaContextMenu, #tabContextMenu),
-  :is(#contentAreaContextMenu, #tabContextMenu) menupopup {
+  menupopup:not(menulist > menupopup) {
     --panel-border-radius: 14px !important;
   }
 }
 
-:is(#contentAreaContextMenu, #tabContextMenu) menuseparator {
+menupopup:not(menulist > menupopup) > menuseparator {
   padding-block: 5px !important;
   padding-inline: 12px !important;
 }
 
 /* More air between the icon and the label (not the Back/Forward row). */
-:is(#contentAreaContextMenu, #tabContextMenu)
+menupopup:not(menulist > menupopup)
   :is(menu, menuitem):not(#context-navigation > *) > .menu-icon {
   margin-inline-end: 12px !important;
 }
@@ -70,13 +71,16 @@
  * Icons
  *
  * Firefox hides .menu-icon unless an item is "iconic" and fills it from
- * --menuitem-icon. Here every plain item reserves the icon column (so labels
- * stay aligned), and an item shows the icon only when the groups further down
- * set --icon-visibility: visible on it.
+ * --menuitem-icon. In the menus listed here every plain item reserves the icon
+ * column (so labels stay aligned), and an item shows the icon only when the
+ * groups further down set --icon-visibility: visible on it. Items that already
+ * draw their own icon (favicons, folders, checkmarks) are left alone.
  * ------------------------------------------------------------------------ */
 
-:is(#contentAreaContextMenu, #tabContextMenu)
-  :is(menu, menuitem):not(.menuitem-iconic, [image], [checked]) > .menu-icon {
+:is(#contentAreaContextMenu, #tabContextMenu, #placesContext,
+    #toolbar-context-menu, #downloadsContextMenu, #unified-extensions-context-menu,
+    #pageActionContextMenu, #main-menubar menupopup)
+  :is(menu, menuitem):not(.menuitem-iconic, .menu-iconic, [image], [checked]) > .menu-icon {
   display: revert !important;
   content: var(--menuitem-icon) !important;
   visibility: var(--icon-visibility, hidden) !important;
@@ -85,11 +89,11 @@
 /* --icon-visibility is inherited, and a submenu's items sit inside the parent
  * <menu>, so reset it on every item. :where() keeps this at zero specificity
  * so the groups below override it. */
-:where(:is(#contentAreaContextMenu, #tabContextMenu) :is(menu, menuitem)) {
+:where(menupopup :is(menu, menuitem)) {
   --icon-visibility: hidden !important;
 }
 
-:is(#contentAreaContextMenu, #tabContextMenu) {
+:root {
   --i-copy: url("chrome://global/skin/icons/edit-copy.svg") !important;
   --i-cut: url("chrome://browser/skin/edit-cut.svg") !important;
   --i-paste: url("chrome://browser/skin/edit-paste.svg") !important;
@@ -132,6 +136,35 @@
   --i-close: url("chrome://global/skin/icons/close.svg") !important;
   --i-audio-playing: url("chrome://browser/skin/tabbrowser/tab-audio-playing-small.svg") !important;
   --i-audio-muted: url("chrome://browser/skin/tabbrowser/tab-audio-muted-small.svg") !important;
+  --i-folder: url("chrome://global/skin/icons/folder.svg") !important;
+  --i-edit: url("chrome://global/skin/icons/edit.svg") !important;
+  --i-sort: url("chrome://browser/skin/sort.svg") !important;
+  --i-plus: url("chrome://global/skin/icons/plus.svg") !important;
+  --i-minus: url("chrome://global/skin/icons/minus.svg") !important;
+  --i-library: url("chrome://browser/skin/library.svg") !important;
+  --i-settings: url("chrome://global/skin/icons/settings.svg") !important;
+  --i-warning: url("chrome://global/skin/icons/warning.svg") !important;
+  --i-sidebar: url("chrome://browser/skin/sidebar-expanded.svg") !important;
+  --i-menu: url("chrome://browser/skin/menu.svg") !important;
+  --i-customize: url("chrome://browser/skin/customize.svg") !important;
+  --i-arrow-up: url("chrome://global/skin/icons/arrow-up.svg") !important;
+  --i-arrow-down: url("chrome://global/skin/icons/arrow-down.svg") !important;
+  --i-open: url("chrome://browser/skin/open.svg") !important;
+  --i-mail: url("chrome://browser/skin/mail.svg") !important;
+  --i-import: url("chrome://browser/skin/import.svg") !important;
+  --i-reader: url("chrome://browser/skin/reader-mode.svg") !important;
+  --i-history: url("chrome://browser/skin/history.svg") !important;
+  --i-forget: url("chrome://browser/skin/forget.svg") !important;
+  --i-synced-tabs: url("chrome://browser/skin/synced-tabs.svg") !important;
+  --i-sync: url("chrome://browser/skin/sync.svg") !important;
+  --i-firefox-view: url("chrome://browser/skin/firefox-view.svg") !important;
+  --i-pdf: url("chrome://global/skin/icons/pdf.svg") !important;
+  --i-performance: url("chrome://global/skin/icons/performance.svg") !important;
+  --i-help: url("chrome://global/skin/icons/help.svg") !important;
+  --i-phone: url("chrome://browser/skin/device-phone.svg") !important;
+  --i-users: url("chrome://global/skin/icons/users.svg") !important;
+  --i-addons: url("chrome://global/skin/icons/plugin.svg") !important;
+  --i-reset: url("chrome://global/skin/icons/arrow-counterclockwise-16.svg") !important;
 }
 
 /* Each group lists the items that share an icon. The two declarations are
@@ -368,9 +401,359 @@
   --icon-visibility: visible !important;
 }
 
+/* -- Bookmark context menu ------------------------------------------------- */
+
+#placesContext_open {
+  --menuitem-icon: var(--i-link) !important;
+  --icon-visibility: visible !important;
+}
+#placesContext_open\:newtab {
+  --menuitem-icon: var(--i-new-tab) !important;
+  --icon-visibility: visible !important;
+}
+#placesContext_open\:newcontainertab {
+  --menuitem-icon: var(--i-container) !important;
+  --icon-visibility: visible !important;
+}
+#placesContext_open\:newwindow {
+  --menuitem-icon: var(--i-window) !important;
+  --icon-visibility: visible !important;
+}
+#placesContext_open\:newprivatewindow {
+  --menuitem-icon: var(--i-private) !important;
+  --icon-visibility: visible !important;
+}
+#placesContext_openBookmarkContainer\:tabs,
+#placesContext_openBookmarkLinks\:tabs, #placesContext_openContainer\:tabs,
+#placesContext_openLinks\:tabs {
+  --menuitem-icon: var(--i-container) !important;
+  --icon-visibility: visible !important;
+}
+#placesContext_showInFolder, #placesContext_new\:folder {
+  --menuitem-icon: var(--i-folder) !important;
+  --icon-visibility: visible !important;
+}
+#contentsharing_sharefolder {
+  --menuitem-icon: var(--i-share) !important;
+  --icon-visibility: visible !important;
+}
+#placesContext_show_bookmark\:info, #placesContext_show\:info,
+#placesContext_show_folder\:info {
+  --menuitem-icon: var(--i-edit) !important;
+  --icon-visibility: visible !important;
+}
+#placesContext_deleteBookmark, #placesContext_removeTag,
+#placesContext_deleteFolder, #placesContext_delete,
+#placesContext_delete_history, #placesContext_deleteHost {
+  --menuitem-icon: var(--i-delete) !important;
+  --icon-visibility: visible !important;
+}
+#placesContext_sortBy\:name {
+  --menuitem-icon: var(--i-sort) !important;
+  --icon-visibility: visible !important;
+}
+#placesContext_cut {
+  --menuitem-icon: var(--i-cut) !important;
+  --icon-visibility: visible !important;
+}
+#placesContext_copy {
+  --menuitem-icon: var(--i-copy) !important;
+  --icon-visibility: visible !important;
+}
+#placesContext_paste, #placesContext_paste_group {
+  --menuitem-icon: var(--i-paste) !important;
+  --icon-visibility: visible !important;
+}
+#placesContext_new\:bookmark, #placesContext_createBookmark {
+  --menuitem-icon: var(--i-bookmark) !important;
+  --icon-visibility: visible !important;
+}
+#placesContext_new\:separator {
+  --menuitem-icon: var(--i-minus) !important;
+  --icon-visibility: visible !important;
+}
+#placesContext_showAllBookmarks {
+  --menuitem-icon: var(--i-library) !important;
+  --icon-visibility: visible !important;
+}
+
+/* -- Toolbar, extension and download menus --------------------------------- */
+
+#toolbar-context-manage-extension,
+#unified-extensions-context-menu-manage-extension,
+#pageActionContextMenuManageExtension {
+  --menuitem-icon: var(--i-settings) !important;
+  --icon-visibility: visible !important;
+}
+#toolbar-context-remove-extension,
+#unified-extensions-context-menu-remove-extension,
+#pageActionContextMenuRemoveExtension, #toolbar-context-remove-from-toolbar {
+  --menuitem-icon: var(--i-delete) !important;
+  --icon-visibility: visible !important;
+}
+#toolbar-context-report-extension,
+#unified-extensions-context-menu-report-extension {
+  --menuitem-icon: var(--i-warning) !important;
+  --icon-visibility: visible !important;
+}
+#toolbar-context-openANewTab {
+  --menuitem-icon: var(--i-new-tab) !important;
+  --icon-visibility: visible !important;
+}
+#toolbar-context-reloadSelectedTab, #toolbar-context-reloadSelectedTabs {
+  --menuitem-icon: var(--i-reload) !important;
+  --icon-visibility: visible !important;
+}
+#toolbar-context-bookmarkSelectedTab, #toolbar-context-bookmarkSelectedTabs {
+  --menuitem-icon: var(--i-bookmark) !important;
+  --icon-visibility: visible !important;
+}
+#toolbar-context-selectAllTabs {
+  --menuitem-icon: var(--i-select-all) !important;
+  --icon-visibility: visible !important;
+}
+#toolbar-context-undoCloseTab {
+  --menuitem-icon: var(--i-undo) !important;
+  --icon-visibility: visible !important;
+}
+#toolbar-context-customize-sidebar {
+  --menuitem-icon: var(--i-sidebar) !important;
+  --icon-visibility: visible !important;
+}
+#toolbar-context-toggle-vertical-tabs {
+  --menuitem-icon: var(--i-container) !important;
+  --icon-visibility: visible !important;
+}
+#toolbar-context-move-to-panel {
+  --menuitem-icon: var(--i-menu) !important;
+  --icon-visibility: visible !important;
+}
+#toolbar-context-pin-to-toolbar,
+#unified-extensions-context-menu-pin-to-toolbar {
+  --menuitem-icon: var(--i-pin) !important;
+  --icon-visibility: visible !important;
+}
+#toolbar-context-customize {
+  --menuitem-icon: var(--i-customize) !important;
+  --icon-visibility: visible !important;
+}
+#toolbar-context-full-screen-exit {
+  --menuitem-icon: var(--i-fullscreen-exit) !important;
+  --icon-visibility: visible !important;
+}
+#unified-extensions-context-menu-move-widget-up {
+  --menuitem-icon: var(--i-arrow-up) !important;
+  --icon-visibility: visible !important;
+}
+#unified-extensions-context-menu-move-widget-down {
+  --menuitem-icon: var(--i-arrow-down) !important;
+  --icon-visibility: visible !important;
+}
+#downloads-cmd-use-system-default {
+  --menuitem-icon: var(--i-open) !important;
+  --icon-visibility: visible !important;
+}
+#downloads-cmd-show-menuitem-2 {
+  --menuitem-icon: var(--i-folder) !important;
+  --icon-visibility: visible !important;
+}
+#downloads-cmd-go-to-download-page {
+  --menuitem-icon: var(--i-link) !important;
+  --icon-visibility: visible !important;
+}
+#downloads-cmd-copy-download-link {
+  --menuitem-icon: var(--i-copy) !important;
+  --icon-visibility: visible !important;
+}
+#downloads-cmd-delete-file, #downloads-cmd-clear-list,
+#downloads-cmd-clear-downloads {
+  --menuitem-icon: var(--i-delete) !important;
+  --icon-visibility: visible !important;
+}
+#downloads-cmd-remove-from-history {
+  --menuitem-icon: var(--i-close) !important;
+  --icon-visibility: visible !important;
+}
+
+/* -- Menu bar (File, Edit, View, History, ...) ----------------------------- */
+
+#menu_newNavigatorTab {
+  --menuitem-icon: var(--i-new-tab) !important;
+  --icon-visibility: visible !important;
+}
+#menu_newNavigator, #menu_newClassicWindow {
+  --menuitem-icon: var(--i-window) !important;
+  --icon-visibility: visible !important;
+}
+#menu_newAIWindow {
+  --menuitem-icon: var(--i-ai) !important;
+  --icon-visibility: visible !important;
+}
+#menu_newPrivateWindow {
+  --menuitem-icon: var(--i-private) !important;
+  --icon-visibility: visible !important;
+}
+#menu_newUserContext {
+  --menuitem-icon: var(--i-container) !important;
+  --icon-visibility: visible !important;
+}
+#menu_openLocation {
+  --menuitem-icon: var(--i-link) !important;
+  --icon-visibility: visible !important;
+}
+#menu_openFile, #menu_openDownloads {
+  --menuitem-icon: var(--i-open) !important;
+  --icon-visibility: visible !important;
+}
+#menu_close, #menu_closeWindow {
+  --menuitem-icon: var(--i-close) !important;
+  --icon-visibility: visible !important;
+}
+#menu_savePage {
+  --menuitem-icon: var(--i-save) !important;
+  --icon-visibility: visible !important;
+}
+#menu_sendLink {
+  --menuitem-icon: var(--i-mail) !important;
+  --icon-visibility: visible !important;
+}
+#menu_print {
+  --menuitem-icon: var(--i-print) !important;
+  --icon-visibility: visible !important;
+}
+#menu_importFromAnotherBrowser {
+  --menuitem-icon: var(--i-import) !important;
+  --icon-visibility: visible !important;
+}
+#menu_undo, #menu_redo, #historyRestoreLastSession {
+  --menuitem-icon: var(--i-undo) !important;
+  --icon-visibility: visible !important;
+}
+#menu_cut {
+  --menuitem-icon: var(--i-cut) !important;
+  --icon-visibility: visible !important;
+}
+#menu_copy {
+  --menuitem-icon: var(--i-copy) !important;
+  --icon-visibility: visible !important;
+}
+#menu_paste {
+  --menuitem-icon: var(--i-paste) !important;
+  --icon-visibility: visible !important;
+}
+#menu_delete {
+  --menuitem-icon: var(--i-delete) !important;
+  --icon-visibility: visible !important;
+}
+#menu_selectAll {
+  --menuitem-icon: var(--i-select-all) !important;
+  --icon-visibility: visible !important;
+}
+#menu_find, #menu_findAgain, #menu_searchHistory, #menu_searchTabs,
+#menu_searchBookmarks {
+  --menuitem-icon: var(--i-search) !important;
+  --icon-visibility: visible !important;
+}
+#menu_customizeToolbars {
+  --menuitem-icon: var(--i-customize) !important;
+  --icon-visibility: visible !important;
+}
+#menu_zoomEnlarge, #menu_newProfile {
+  --menuitem-icon: var(--i-plus) !important;
+  --icon-visibility: visible !important;
+}
+#menu_zoomReduce {
+  --menuitem-icon: var(--i-minus) !important;
+  --icon-visibility: visible !important;
+}
+#menu_zoomReset {
+  --menuitem-icon: var(--i-reset) !important;
+  --icon-visibility: visible !important;
+}
+#fullScreenItem {
+  --menuitem-icon: var(--i-fullscreen) !important;
+  --icon-visibility: visible !important;
+}
+#menu_readerModeItem {
+  --menuitem-icon: var(--i-reader) !important;
+  --icon-visibility: visible !important;
+}
+#menu_showAllHistory {
+  --menuitem-icon: var(--i-history) !important;
+  --icon-visibility: visible !important;
+}
+#sanitizeItem {
+  --menuitem-icon: var(--i-forget) !important;
+  --icon-visibility: visible !important;
+}
+#sync-tabs-menuitem {
+  --menuitem-icon: var(--i-synced-tabs) !important;
+  --icon-visibility: visible !important;
+}
+#hiddenTabsMenu, #menu_showAllTabs {
+  --menuitem-icon: var(--i-container) !important;
+  --icon-visibility: visible !important;
+}
+#bookmarksShowAll {
+  --menuitem-icon: var(--i-library) !important;
+  --icon-visibility: visible !important;
+}
+#menu_bookmarkThisPage, #menu_bookmarkAllTabs {
+  --menuitem-icon: var(--i-bookmark) !important;
+  --icon-visibility: visible !important;
+}
+#menu_openAddons {
+  --menuitem-icon: var(--i-addons) !important;
+  --icon-visibility: visible !important;
+}
+#sync-setup, #sync-enable, #sync-unverifieditem, #sync-syncnowitem,
+#sync-reauthitem {
+  --menuitem-icon: var(--i-sync) !important;
+  --icon-visibility: visible !important;
+}
+#menu_openFirefoxView {
+  --menuitem-icon: var(--i-firefox-view) !important;
+  --icon-visibility: visible !important;
+}
+#menu_editPDF {
+  --menuitem-icon: var(--i-pdf) !important;
+  --icon-visibility: visible !important;
+}
+#menu_taskManager {
+  --menuitem-icon: var(--i-performance) !important;
+  --icon-visibility: visible !important;
+}
+#menu_pageSource {
+  --menuitem-icon: var(--i-source) !important;
+  --icon-visibility: visible !important;
+}
+#menu_pageInfo, #troubleShooting, #aboutName {
+  --menuitem-icon: var(--i-info) !important;
+  --icon-visibility: visible !important;
+}
+#menu_preferences {
+  --menuitem-icon: var(--i-settings) !important;
+  --icon-visibility: visible !important;
+}
+#menu_manageProfiles {
+  --menuitem-icon: var(--i-users) !important;
+  --icon-visibility: visible !important;
+}
+#menu_openHelp {
+  --menuitem-icon: var(--i-help) !important;
+  --icon-visibility: visible !important;
+}
+#help_reportBrokenSite {
+  --menuitem-icon: var(--i-warning) !important;
+  --icon-visibility: visible !important;
+}
+#helpSwitchDevice {
+  --menuitem-icon: var(--i-phone) !important;
+  --icon-visibility: visible !important;
+}
+
 /* Redo reuses the undo arrow, mirrored. */
-:is(#contentAreaContextMenu, #tabContextMenu)
-  :is(#context-redo, #context-pdfjs-redo) > .menu-icon {
+:is(#context-redo, #context-pdfjs-redo, #menu_redo) > .menu-icon {
   transform: scaleX(-1) !important;
 }
 
